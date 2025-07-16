@@ -1,0 +1,62 @@
+import numpy as np
+def load_Data():
+    x = np.array([
+        [1400, 3, 20, 2, 1],
+        [1600, 3, 15, 2, 1],
+        [1700, 3, 18, 2, 2],
+        [1875, 4, 12, 3, 2],
+        [1100, 2, 30, 1, 1],
+        [1550, 3, 20, 2, 2],
+        [2350, 4, 10, 3, 2],
+        [2450, 4, 8, 3, 2],
+        [1425, 3, 15, 2, 1],
+        [1700, 3, 14, 2, 1]])
+    y = np.array([245000, 312000, 279000, 308000, 199000, 219000, 405000, 324000, 319000, 255000])
+    meanx=np.mean(x,axis=0)
+    stdx=np.std(x,axis=0)
+    normal_x=(x-meanx)/stdx
+
+    meany=np.mean(y,axis=0)
+    stdy=np.std(y,axis=0)
+    normal_y=(y-meany)/stdy
+    return normal_x,normal_y,meany,stdy,meanx,stdx
+    
+
+
+def gradient(x,y,w,b):
+    m,n=x.shape
+    derivative_w=np.zeros(n)
+    derivative_b=0
+    for i in range(m):
+        predicted=np.dot(x[i],w)+b
+        derivative_w+=(predicted-y[i])*x[i]
+        derivative_b+=(predicted-y[i])
+    derivative_w=derivative_w/m
+    derivative_b=derivative_b/m
+    return derivative_w,derivative_b
+
+def descent_gradient(temp_w,temp_b,x,y,iterations,alpha):
+    w=temp_w
+    b=temp_b
+    for i in range(iterations):
+        derivative_w,derivative_b=gradient(x,y,w,b)
+        w-=alpha*derivative_w
+        b-=alpha*derivative_b
+    return w,b
+
+def prediction(x,w,b):
+    predicted=np.dot(x,w)+b
+    return predicted
+
+x_Train,y_Train,meany,stdy,meanx,stdx=load_Data()
+temp_w=np.zeros(x_Train.shape[1])
+temp_b=0
+iterations=1500
+alpha=0.001
+final_w,final_b=descent_gradient(temp_w,temp_b,x_Train,y_Train,iterations,alpha)
+new_house = np.array([2000, 3, 15, 2, 2])
+new_house = (new_house - meanx) / stdx
+y_pred_normalized = prediction( new_house,final_w,final_b)
+y_pred = y_pred_normalized * stdy + meany
+
+print("Predicted price of the new house:", y_pred)
